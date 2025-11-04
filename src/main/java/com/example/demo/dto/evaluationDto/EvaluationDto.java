@@ -4,17 +4,15 @@ import com.example.demo.entity.EvaluationEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 
 
 public record EvaluationDto(
         @Schema(description = "id de l'évaluation")
         Long id,
-        @Schema(description = "nom de l'evaluateur",nullable = false,maxLength = 50)
+        @Schema(description = "nom de l'evaluateur",maxLength = 50)
         @NotBlank() @Max(50) String name,
-        @Schema(description = "note de l'evaluation compris entre 0 et 3",maxContains = 3,minContains = 0)
+        @Schema(description = "note de l'evaluation compris entre 0 et 3")
         @Min(0) @Max(3) int note,
 
         @Schema(description = "commentaire de l'utilisateur",maxLength = 255)

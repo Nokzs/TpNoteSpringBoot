@@ -18,9 +18,9 @@ Classe de mapping d'un restaurantEntity vers son dto, pas possible de le faire d
 public class RestaurantMapper {
     private final MinioService minioService;
     private final EvaluationMapper evaluationMapper;
-    public RestaurantMapper(MinioService minioService, EvaluationMapper evaluationMapper, EvaluationMapper evaluationMapper1) {
+    public RestaurantMapper(MinioService minioService, EvaluationMapper evaluationMapper) {
         this.minioService = minioService;
-        this.evaluationMapper = evaluationMapper1;
+        this.evaluationMapper = evaluationMapper;
     }
     public RestaurantDto toDto(RestaurantEntity restaurantEntity) {
         if (restaurantEntity == null) {
@@ -29,7 +29,7 @@ public class RestaurantMapper {
 
         AtomicDouble moyenne = new AtomicDouble(-1);
         List<EvaluationDto> evaluationDtos;
-        String url = restaurantEntity.getPhotoKey() != null && !restaurantEntity.getPhotoKey().isEmpty() ?  this.minioService.getPublicUrl(restaurantEntity.getPhotoKey()):"";
+        String url = restaurantEntity.getPhotokey() != null && !restaurantEntity.getPhotokey().isEmpty() ?  this.minioService.getPublicUrl(restaurantEntity.getPhotokey()):"";
         if (restaurantEntity.getEvaluation() != null && !restaurantEntity.getEvaluation().isEmpty()) {
             moyenne.set(0);
             evaluationDtos = restaurantEntity.getEvaluation().stream().map(e -> {

@@ -24,13 +24,13 @@ public class RestaurantEntity {
      @OneToMany(mappedBy = "restaurant")
     List<EvaluationEntity> evaluation = new ArrayList<>();
 
-     @Column(name = "photoKey")
-     String photoKey;
+     @Column(name = "photo_key")
+     String photokey;
 
      public RestaurantEntity(CreateRestaurantDto createRestaurantDto) {
          this.name = createRestaurantDto.name();
          this.address = createRestaurantDto.address();
-         this.photoKey = createRestaurantDto.url();
+         this.photokey = createRestaurantDto.url();
 
      }
 

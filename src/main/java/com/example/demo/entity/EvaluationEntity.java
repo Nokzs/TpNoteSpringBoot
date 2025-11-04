@@ -22,7 +22,7 @@ public class EvaluationEntity {
     @Size(max=255)
     private String evaluatorName;
 
-    @Column(name="Content",length = 255)
+    @Column(name="Content")
     private String content;
 
     @Min(0)
@@ -46,5 +46,9 @@ public class EvaluationEntity {
         this.setRestaurant(r);
         this.setKeys(createEvaluationDto.keys());
         r.setEvaluation(evaluationList);
+    }
+
+    public EvaluationEntity() {
+
     }
 }
