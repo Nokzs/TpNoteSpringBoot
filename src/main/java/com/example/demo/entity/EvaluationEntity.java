@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.evaluationDto.CreateEvaluationDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -7,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "evaluation")
 @Data
@@ -34,4 +36,15 @@ public class EvaluationEntity {
 
     @Column(name="keys")
     ArrayList<String> keys;
+
+    public EvaluationEntity(CreateEvaluationDto createEvaluationDto,RestaurantEntity r,String name) {
+        List<EvaluationEntity> evaluationList = r.getEvaluation();
+        this.setEvaluatorName(name);
+        this.setNote(createEvaluationDto.note());
+        this.setContent(createEvaluationDto.content());
+        evaluationList.add(this);
+        this.setRestaurant(r);
+        this.setKeys(createEvaluationDto.keys());
+        r.setEvaluation(evaluationList);
+    }
 }

@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.restaurantDto.CreateRestaurantDto;
-import com.example.demo.dto.restaurantDto.IdDto;
 import com.example.demo.dto.restaurantDto.UpdateRestaurantDto;
 import com.example.demo.entity.RestaurantEntity;
 import com.example.demo.repository.RestaurantRepository;
@@ -39,8 +38,12 @@ public class RestaurantService {
     @Secured("ADMIN")
     public void updateRestaurant(UpdateRestaurantDto updateRestaurantDto) {
         RestaurantEntity resto = this.restaurantRepository.findById(updateRestaurantDto.id()).orElseThrow(()-> new NoSuchElementException("aucun restaurant avec cette Id"));
+        if(updateRestaurantDto.name()!=null){
         resto.setName(updateRestaurantDto.name());
-        resto.setAddress(updateRestaurantDto.address());
+        }
+        if(updateRestaurantDto.address()!=null){
+            resto.setAddress(updateRestaurantDto.address());
+        }
         this.restaurantRepository.save(resto);
     }
 }

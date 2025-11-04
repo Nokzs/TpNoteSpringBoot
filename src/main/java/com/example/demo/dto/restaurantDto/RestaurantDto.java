@@ -3,27 +3,28 @@ package com.example.demo.dto.restaurantDto;
 import com.example.demo.dto.evaluationDto.EvaluationDto;
 import com.example.demo.entity.RestaurantEntity;
 import com.google.common.util.concurrent.AtomicDouble;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public record RestaurantDto(Long id, String name, String address, double moyenne, List<EvaluationDto> evaluation,String url ) {
+public record RestaurantDto(
+        @Schema(description = "id du restaurant")
+        Long id,
+        @Schema(description = "nom du restaurant")
+        @Size(max = 90) @NotBlank()
+        String name,
+        @Schema(description = "adresse du restaurant" )
+        String address,
+        @Schema(description = "moyenne des évaluations, -1 si aucune évaluations")
+        double moyenne,
+        @Schema(description = "liste des evaluations associées")
+        List<EvaluationDto> evaluation,
+        @Schema(description = "url de l'image du restaurant")
+        String url
+) {
 
-    public static  RestaurantDto buildFromEntity(RestaurantEntity restaurantEntity,String url){
-        AtomicDouble moyenne = new AtomicDouble(-1);
-        List<EvaluationDto> evaluationDtos;
-        if(!restaurantEntity.getEvaluation().isEmpty()) {
-            moyenne.set(0);
-            evaluationDtos = restaurantEntity.getEvaluation().stream().map(e -> {
-                            moyenne.addAndGet(e.getNote());
-                            return EvaluationDto.buildFromEntity(e);
-            }).toList();
-            moyenne.updateAndGet(v -> v / evaluationDtos.size());
-        } else {
-            evaluationDtos = new ArrayList<>();
-        }
 
-        return new RestaurantDto(restaurantEntity.getId(), restaurantEntity.getName(), restaurantEntity.getAddress(),moyenne.get(),evaluationDtos,url);
-    }
 }

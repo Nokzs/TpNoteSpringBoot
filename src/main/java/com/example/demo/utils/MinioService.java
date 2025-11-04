@@ -9,7 +9,10 @@ import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -37,16 +40,18 @@ public class MinioService {
 
         log.info("Bucked coursm2 exists ? {}", this.minioClient.bucketExists(BucketExistsArgs.builder().bucket("coursm2").build()));
     }
+    @Secured("ADMIN")
     public String getSignedUrlRestaurant(String key) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         return minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
-                        .method(Method.GET)
+                        .method(Method.PUT)
                         .bucket("coursm2")
                         .object("restaurantPicture" + key)
                         .expiry(24, TimeUnit.HOURS)
                         .build()
         );
     }
+
     public boolean objectExists(String bucketName, String objectKey) {
         try {
             minioClient.statObject(
@@ -60,23 +65,22 @@ public class MinioService {
             if (e.errorResponse().code().equals("NoSuchKey")) {
                 return false;
             }
-            throw new RuntimeException("Erreur lors de la vérification de l'objet", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur inattendue lors du traitement");
         } catch (Exception e) {
-            throw new RuntimeException("Erreur MinIO", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur inattendue lors du traitement");
         }
     }
 
     public String getPublicUrl(String key) {
         try {
-            String coursm2 = this.minioClient.getPresignedObjectUrl(
+            return this.minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
-                            .method(Method.GET)       // méthode GET pour récupérer le fichier
+                            .method(Method.GET)
                             .bucket("coursm2")
                             .object(key)
-                            .expiry(24, TimeUnit.HOURS)  // durée de validité de l'URL
+                            .expiry(24, TimeUnit.HOURS)
                             .build()
             );
-            return coursm2;
         } catch (Exception e) {
             throw new RuntimeException("Impossible de générer l'URL signée", e);
         }
@@ -91,7 +95,7 @@ public class MinioService {
             try {
                 String signedUrl = minioClient.getPresignedObjectUrl(
                         GetPresignedObjectUrlArgs.builder()
-                                .method(Method.GET)
+                                .method(Method.PUT)
                                 .bucket("coursm2")
                                 .object(objectKey)
                                 .expiry(24, TimeUnit.HOURS)
