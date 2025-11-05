@@ -91,7 +91,7 @@ public class RestaurantController {
             @ApiResponse(responseCode = "201", description = "restaurant créer avec succès"),
             @ApiResponse(responseCode = "400", description = "photo inexistante")
     })
-    @Operation(description = "Récupération d'une url signée pour un restaurant")
+    @Operation(description = "Récupération d'une url signée pour un restaurant, ATTENTION : le fichier doit être upload avant de creer le restaurant et la clé renvoyée avec")
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/signedUrl/")
     @Secured("ADMIN")
