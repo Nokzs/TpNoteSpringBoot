@@ -164,7 +164,7 @@ public class EvaluationController {
         return ids.stream().map(evaluationService::findById).toList().stream().map(evaluationMapper::toDto).toList();
     }
 
-    @Operation(summary = "Fournis une url signée", description = "Fournis une url signée l'utilisateur doit d'abord upload avant de créer l'évaluation")
+    @Operation(summary = "Fournis une url signée", description = "Fournis une url signée, l'utilisateur doit d'abord upload avant de créer l'évaluation et envoyé les clé envoyé par cette route")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Évaluation récupéré avec succès"),
             @ApiResponse(responseCode =  "401", description = "utilisateur non connécté")
