@@ -1,23 +1,20 @@
 package com.example.demo.dto.evaluationDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
-import org.checkerframework.checker.units.qual.N;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 
-public record CreateEvaluationDto(
+public record UpdateEvaluationDto(
         @Schema(description = "commentaire de l'utilisateur")
-        @NotNull
         @Size(max = 255) String content,
 
         @Schema(description = "note pouvant être entre 0 et 3")
-        @Max(3) @Min(0) @NotNull int note,
+        @Max(3) @Min(0)  Integer note,
 
         @Schema(description = "clé qui ont permit l'upload des fichiers")
-        ArrayList<String> keys,
-
-        @Schema(description = "id du restaurant")
-        @NotNull
-        @Positive long restaurantId) {
+        ArrayList<String> keys
+) {
 }

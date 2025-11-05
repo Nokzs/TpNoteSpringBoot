@@ -13,7 +13,7 @@ public record EvaluationDto(
         @Schema(description = "nom de l'evaluateur",maxLength = 50)
         @NotBlank() @Max(50) String name,
         @Schema(description = "note de l'evaluation compris entre 0 et 3")
-        @Min(0) @Max(3) int note,
+        @Min(0) @Max(3) @NotNull int note,
 
         @Schema(description = "commentaire de l'utilisateur",maxLength = 255)
         @NotBlank @Size(max = 255)
@@ -24,17 +24,8 @@ public record EvaluationDto(
         long restaurantId,
 
         @Schema(description = "liste des urls des images")
-        List<String> urls
+        List<String> keys
         ) {
-    public static EvaluationDto buildFromEntity(EvaluationEntity entity, List<String> urls) {
 
-       return new EvaluationDto(
-               entity.getId(),
-               entity.getEvaluatorName(),
-               entity.getNote(),
-               entity.getContent(),
-               entity.getRestaurant().getId(),
-               urls);
-    }
 
 }

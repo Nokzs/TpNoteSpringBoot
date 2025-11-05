@@ -4,7 +4,9 @@ import com.example.demo.dto.restaurantDto.CreateRestaurantDto;
 import com.example.demo.dto.restaurantDto.UpdateRestaurantDto;
 import com.example.demo.entity.RestaurantEntity;
 import com.example.demo.repository.RestaurantRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +21,7 @@ public class RestaurantService {
         this.restaurantRepository = restaurantRepository;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Secured("ADMIN")
     public RestaurantEntity createRestaurant(CreateRestaurantDto restaurantDto){
         RestaurantEntity restaurantEntity = new RestaurantEntity(restaurantDto);
@@ -37,7 +40,7 @@ public class RestaurantService {
 
     @Secured("ADMIN")
     public void updateRestaurant(UpdateRestaurantDto updateRestaurantDto) {
-        RestaurantEntity resto = this.restaurantRepository.findById(updateRestaurantDto.id()).orElseThrow(()-> new NoSuchElementException("aucun restaurant avec cette Id"));
+        RestaurantEntity resto = this.restaurantRepository.findById(updateRestaurantDto.id()).orElseThrow(()-> new EntityNotFoundException("aucun restaurant avec cette Id"));
         if(updateRestaurantDto.name()!=null){
         resto.setName(updateRestaurantDto.name());
         }

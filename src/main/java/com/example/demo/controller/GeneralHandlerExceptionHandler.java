@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,7 +13,7 @@ import java.util.*;
 
 
 @ControllerAdvice
-public class NotFoundExceptionHandler {
+public class GeneralHandlerExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiError> handleException(EntityNotFoundException e){
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -36,5 +37,9 @@ public class NotFoundExceptionHandler {
 
         return ResponseEntity.badRequest().body(errors);
     }
-
+   @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiError> handleUnAuthorizedException(AuthorizationDeniedException e){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiError(401, e.getMessage()));
+    }
 }

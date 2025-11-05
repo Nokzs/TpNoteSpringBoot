@@ -1,10 +1,7 @@
 package com.example.demo.utils;
 
 
-import io.minio.BucketExistsArgs;
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.StatObjectArgs;
+import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.extern.slf4j.Slf4j;
@@ -107,5 +104,20 @@ public class MinioService {
             }
         }
         return urls;
+    }
+
+    public void deleteObject(String key) {
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket("coursm2")
+                            .object(key)
+                            .build()
+            );
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

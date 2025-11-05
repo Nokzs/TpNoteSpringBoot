@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.evaluationDto.CreateEvaluationDto;
+import com.example.demo.dto.evaluationDto.UpdateEvaluationDto;
 import com.example.demo.entity.EvaluationEntity;
 import com.example.demo.entity.RestaurantEntity;
 import com.example.demo.repository.EvaluationRepository;
@@ -16,8 +17,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -41,24 +44,73 @@ public class EvaluationService {
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
-        List<String> roles = jwt.getClaimAsStringList("roles");
+        List<String> roles = new ArrayList<>();
+
+        // je dois recupérer le role afin de vérifier si l'utilisateur à bien le droit de supprimer
+        Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+        if (resourceAccess != null && resourceAccess.containsKey("coursm2")) {
+            Map<String, Object> coursm2 = (Map<String, Object>) resourceAccess.get("coursm2");
+            if (coursm2.containsKey("roles")) {
+                roles.addAll((List<String>) coursm2.get("roles"));
+            }
+        }
         EvaluationEntity entity = this.evaluationRepository.findById(evaluationId).orElseThrow(() -> new EntityNotFoundException("Evaluation not found"));
-        List<String> key = entity.getKeys().stream().toList();
-        if(!roles.contains("ADMIN") || !entity.getEvaluatorName().equals(jwt.getClaimAsString("name"))){
+        List<String> key = entity.getKeys();
+        if(!roles.contains("ADMIN") && !entity.getEvaluatorName().equals(jwt.getClaimAsString("name"))){
             throw new AccessDeniedException("Vous n'avez le droit de supprimer cette évaluation");
         }
 
         this.evaluationRepository.deleteById(evaluationId);
-        return key;
+        return Objects.requireNonNullElseGet(key, ArrayList::new);
     }
 
     public List<EvaluationEntity> getUserEvaluation(String name) {
-        return this.evaluationRepository.findByEvaluatorName(name);
+        List<EvaluationEntity> entity = this.evaluationRepository.findByEvaluatorName(name);
+        if(entity.isEmpty()){
+            throw new EntityNotFoundException("Evaluation not found");
+        }
+        return entity;
     }
     public EvaluationEntity findById(long id) {
+        log.info("l'id " + String.valueOf(id));
         return this.evaluationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Evaluation not found"));
     }
     public List<EvaluationEntity> findAll() {
         return this.evaluationRepository.findAll();
     }
+
+    @PreAuthorize("isAuthenticated()")
+    public List<String> updateEvalution(Long id, UpdateEvaluationDto dto) {
+        if(!evaluationRepository.existsById(id)){
+            throw new EntityNotFoundException("Evaluation not found");
+        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        List<String> roles = new ArrayList<>();
+        // je dois recupérer le role afin de vérifier si l'utilisateur à bien le droit de supprimer
+        Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+        if (resourceAccess != null && resourceAccess.containsKey("coursm2")) {
+            Map<String, Object> coursm2 = (Map<String, Object>) resourceAccess.get("coursm2");
+            if (coursm2.containsKey("roles")) {
+                roles.addAll((List<String>) coursm2.get("roles"));
+            }
+        }
+        EvaluationEntity entity = this.evaluationRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Evaluation not found"));
+        List<String> key = entity.getKeys();
+        if(!roles.contains("ADMIN") && !entity.getEvaluatorName().equals(jwt.getClaimAsString("name"))){
+            throw new AccessDeniedException("Vous n'avez le droit de supprimer cette évaluation");
+        }
+        if(!dto.content().isEmpty()){
+            entity.setContent(dto.content());
+        }
+        if(!dto.keys().isEmpty()){
+            entity.setKeys(dto.keys());
+        }
+        if(dto.note() != null){
+            entity.setNote(dto.note());
+        }
+        this.evaluationRepository.save(entity);
+        return key;
+    }
+
 }
